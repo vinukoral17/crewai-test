@@ -1,70 +1,43 @@
-#!/usr/bin/env python
-from dotenv import load_dotenv
-load_dotenv()
-import sys
-import warnings
+"""Command line interface for the Sprint 3 crew.
 
-from datetime import datetime
+This script accepts a target URL and repository root, sets up the necessary
+environment variables and invokes the crew defined in :mod:`crew`.  After
+execution it prints a compact JSON summary so results can be inspected or
+chained by other tools.
+"""
 
-from sprint_3.crew import Frontout
+from __future__ import annotations
 
-warnings.filterwarnings("ignore", category=SyntaxWarning, module="pysbd")
+import argparse
+import json
+import os
 
-# This main file is intended to be a way for you to run your
-# crew locally, so refrain from adding unnecessary logic into this file.
-# Replace with inputs you want to test with, it will automatically
-# interpolate any tasks and agents information
-
-def run():
-    """
-    Run the crew.
-    """
-    inputs = {
-        'topic': 'AI LLMs',
-        'current_year': str(datetime.now().year)
-    }
-    
-    try:
-        Frontout().crew().kickoff(inputs=inputs)
-    except Exception as e:
-        raise Exception(f"An error occurred while running the crew: {e}")
+from .crew import build_crew
 
 
-def train():
-    """
-    Train the crew for a given number of iterations.
-    """
-    inputs = {
-        "topic": "Open source AI agent frameworks",
-        'current_year': str(datetime.now().year)
-    }
-    try:
-        Frontout().crew().train(n_iterations=int(sys.argv[1]), filename=sys.argv[2], inputs=inputs)
+def main() -> None:
+    """Parse command line arguments and execute the crew."""
 
-    except Exception as e:
-        raise Exception(f"An error occurred while training the crew: {e}")
+    parser = argparse.ArgumentParser(description="Run the Sprint 3 site mimicker")
+    parser.add_argument("--url", required=True, help="Target site URL for layout analysis")
+    parser.add_argument(
+        "--repo-root", default=".", help="Repository root for safe file writes"
+    )
+    args = parser.parse_args()
 
-def replay():
-    """
-    Replay the crew execution from a specific task.
-    """
-    try:
-        Frontout().crew().replay(task_id=sys.argv[1])
+    # Expose the values so that agents can reference them directly.
+    os.environ["TARGET_URL"] = args.url
+    os.environ["REPO_ROOT"] = args.repo_root
 
-    except Exception as e:
-        raise Exception(f"An error occurred while replaying the crew: {e}")
+    crew = build_crew(target_url=args.url, repo_root=args.repo_root)
 
-def test():
-    """
-    Test the crew execution and returns the results.
-    """
-    inputs = {
-        "topic": "AI LLMs",
-        "current_year": str(datetime.now().year)
-    }
-    
-    try:
-        Frontout().crew().test(n_iterations=int(sys.argv[1]), eval_llm=sys.argv[2], inputs=inputs)
+    # Run all tasks and capture the combined result.
+    result = crew.kickoff(inputs={"target_url": args.url, "repo_root": args.repo_root})
 
-    except Exception as e:
-        raise Exception(f"An error occurred while testing the crew: {e}")
+    # Emit a compact JSON summary to STDOUT.
+    print(json.dumps({"status": "completed", "result": str(result)}, indent=2))
+
+
+if __name__ == "__main__":
+    main()
+
