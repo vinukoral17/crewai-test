@@ -1,17 +1,66 @@
-research_task:
-  description: >
-    Conduct a thorough research about {topic}
-    Make sure you find any interesting and relevant information given
-    the current year is {current_year}.
-  expected_output: >
-    A list with 10 bullet points of the most relevant information about {topic}
-  agent: researcher
+# tasks.yaml - task specifications for the Sprint 3 crew
 
-reporting_task:
-  description: >
-    Review the context you got and expand each topic into a full section for a report.
-    Make sure the report is detailed and contains any and all relevant information.
-  expected_output: >
-    A fully fledged report with the main topics, each with a full section of information.
-    Formatted as markdown without '```'
-  agent: reporting_analyst
+analyze_site:
+  agent: site_analyzer
+  description: |
+    Review the target site at ${TARGET_URL} focusing only on layout and user flow.
+    Summarize the structure and interactions.
+    WRITE files using file_writer:
+      - src/sprint_3/.artifacts/LayoutSpec.json
+      - src/sprint_3/.artifacts/ComponentMap.json
+  expected_output: "LayoutSpec.json and ComponentMap.json created in .artifacts."
+
+plan_routes:
+  agent: ui_architect
+  description: |
+    Using LayoutSpec.json and ComponentMap.json, propose a Next.js route plan
+    and component hierarchy. No files are written.
+
+scaffold_pages:
+  agent: component_generator
+  async: true
+  description: |
+    Convert the route plan into stubbed Next.js pages with accessibility notes.
+    WRITE files using file_writer:
+      - app/(routes)/(home)/page.tsx
+      - app/category/[slug]/page.tsx
+      - app/product/[id]/page.tsx
+      - app/cart/page.tsx
+      - app/checkout/page.tsx
+      - app/order/success/page.tsx
+  expected_output: "TSX pages with idempotent markers and inline comments."
+
+api_and_types:
+  agent: data_modeler
+  async: true
+  description: |
+    Define the basic data layer with types and mocked API routes.
+    WRITE files using file_writer:
+      - app/api/products/route.ts
+      - app/api/products/[id]/route.ts
+      - app/api/cart/route.ts
+      - app/api/checkout/route.ts
+      - types/index.ts
+  expected_output: "Type definitions and API routes."
+
+commerce_flow:
+  agent: commerce_flow_engineer
+  async: true
+  description: |
+    Supply cart and checkout helpers, including a finite state machine.
+    WRITE files using file_writer:
+      - app/components/cart/CartSummary.tsx
+      - app/components/checkout/CheckoutWizard.tsx
+      - app/lib/checkoutMachine.ts
+  expected_output: "Reusable commerce helpers and state machine."
+
+validate_build:
+  agent: qa_validator
+  description: |
+    Describe how to validate the scaffold.
+    Print exact commands and expected results for:
+      pnpm lint
+      pnpm typecheck
+      pnpm build
+  expected_output: "Validation instructions."
+
