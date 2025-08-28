@@ -54,3 +54,35 @@ For support, questions, or feedback regarding the Sprint3 Crew or crewAI.
 - [Chat with our docs](https://chatg.pt/DWjSBZn)
 
 Let's create wonders together with the power and simplicity of crewAI.
+
+## Website Mimicker Crew
+
+This project now includes a CrewAI workflow to analyze a target website's layout and scaffold a Next.js + Tailwind CSS application that mimics its structure (without copying content).
+
+### Setup
+1. Ensure you have Node.js 18+ and pnpm installed.
+2. Copy `.env.example` to `.env` and provide the required API keys.
+
+### Required environment variables
+- `MODEL`
+- `GEMINI_API_KEY`
+- `SERPER_API_KEY`
+
+### Commands
+- `pnpm install` – install dependencies
+- `pnpm dev` – run the Next.js development server
+- `pnpm build` – build the production app
+- `pnpm typecheck` – run TypeScript checks
+- `pnpm test` – run unit and accessibility tests
+- `pnpm crew:run --url <target>` – analyze the given URL and update the app
+
+### Regenerating for another URL
+Run `pnpm crew:run --url https://example.com` to regenerate layout artifacts and update auto-generated sections. Existing custom code is preserved outside of `// <auto-gen start: crew-site-mimicker>` markers.
+
+### App Features
+- Split hero layout on the home page
+- URL-synchronised category filters (price, size, color)
+- Product gallery with thumbnails and keyboard navigation
+- Promo code placeholder in the cart (`SAVE10` for 10% off)
+- Checkout progress indicator with basic form validation
+- Sticky header with accessible mega-menu stub
